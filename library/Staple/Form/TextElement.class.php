@@ -79,7 +79,7 @@ class TextElement extends FieldElement
 	 */
 	public function label()
 	{
-		return '	<label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label."</label>\n";
+        return '	<div class="field_label"><label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label."</label></div>";
 	}
 
 	/**
@@ -99,8 +99,25 @@ class TextElement extends FieldElement
 		{
 			$max = ' maxlength="'.((int)$this->max).'"';
 		}
-		return '	<input type="text" id="'.$this->escape($this->id).'" name="'.$this->escape($this->name).'" value="'.$this->escape($this->value).'"'.$size.$max.$this->getAttribString('input').'>'."\n";
+		return '	<div class="field"><input type="text" id="'.$this->escape($this->id).'" name="'.$this->escape($this->name).'" value="'.$this->escape($this->value).'"'.$size.$max.$this->getAttribString('input').'></div>'."\n";
 	}
+
+    public function errors()
+    {
+        if(count($this->getErrors()) > 0)
+        {
+            $buf = "<div class=\"field_errors\">\n<ul>";
+            foreach($this->getErrors() as $errors)
+            {
+                foreach($errors as $error)
+                {
+                    $buf .= "<li>$error</li>";
+                }
+            }
+            $buf .= "</ul>\n</div>";
+            return $buf;
+        }
+    }
 
 	/*
 	 * @todo add method to add custom field view
@@ -134,8 +151,9 @@ class TextElement extends FieldElement
 			$classes = $this->getClassString('div');
 			$buf .= "<div$classes id=\"".$this->escape($this->id)."_element\">\n";
 			$buf .= $this->label();
+            $buf .= $this->instructions();
 			$buf .= $this->field();
-			$buf .= $this->instructions();
+            $buf .= $this->errors();
 			$buf .= "</div>\n";
 		}
 		return $buf;

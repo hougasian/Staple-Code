@@ -90,7 +90,7 @@ class PasswordElement extends FieldElement
 	 */
 	public function label()
 	{
-		return '	<label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label."</label>\n";
+		return '	<div class="field_label"><label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label."</label></div>\n";
 	}
 
 	/**
@@ -115,8 +115,25 @@ class PasswordElement extends FieldElement
 		{
 			$value = $this->value;
 		}
-		return '	<input type="password" id="'.$this->escape($this->id).'" name="'.$this->escape($this->name).'" value="'.$this->escape($value).'"'.$size.$max.$this->getAttribString('input').'>'."\n";
+		return '	<div class="field_input"><input type="password" id="'.$this->escape($this->id).'" name="'.$this->escape($this->name).'" value="'.$this->escape($value).'"'.$size.$max.$this->getAttribString('input').'></div>'."\n";
 	}
+
+    public function errors()
+    {
+        if(count($this->getErrors()) > 0)
+        {
+            $buf = "<div class=\"field_errors\">\n<ul>";
+            foreach($this->getErrors() as $errors)
+            {
+                foreach($errors as $error)
+                {
+                    $buf .= "<li>$error</li>";
+                }
+            }
+            $buf .= "</ul>\n</div>";
+            return $buf;
+        }
+    }
 
 	/**
 	 * Build the form field.
@@ -141,8 +158,9 @@ class PasswordElement extends FieldElement
 			$classes = $this->getClassString('div');
 			$buf .= "<div$classes id=\"".$this->escape($this->id)."_element\">\n";
 			$buf .= $this->label();
+            $buf .= $this->instructions();
 			$buf .= $this->field();
-			$buf .= $this->instructions();
+            $buf .= $this->errors();
 			$buf .= "</div>\n";
 		}
 		return $buf;

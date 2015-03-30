@@ -727,7 +727,7 @@ abstract class FieldElement
 	{
 		if(strlen($this->instructions) > 0)
 		{
-			return '	<p class="field_instructions">'.$this->escape($this->instructions).'</p>';
+			return '	<div class="field_instructions">'.$this->escape($this->instructions).'</div>';
 		}
 		else
 		{

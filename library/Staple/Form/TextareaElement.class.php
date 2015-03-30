@@ -59,8 +59,25 @@ class TextareaElement extends FieldElement
 	 */
 	public function label()
 	{
-		return '	<label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label."</label>\n";
+		return '	<label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label."</label><br>\n";
 	}
+
+    public function errors()
+    {
+        if(count($this->getErrors()) > 0)
+        {
+            $buf = "<div class=\"field_errors\">\n<ul>";
+            foreach($this->getErrors() as $errors)
+            {
+                foreach($errors as $error)
+                {
+                    $buf .= "<li>$error</li>";
+                }
+            }
+            $buf .= "</ul>\n</div>";
+            return $buf;
+        }
+    }
 
 	public function build($fieldView = NULL)
 	{
@@ -80,8 +97,9 @@ class TextareaElement extends FieldElement
 			$classes = $this->getClassString('div');
 			$buf .= "<div$classes id=\"".$this->escape($this->id)."_element\">\n";
 			$buf .= $this->label();
+            $buf .= $this->instructions();
 			$buf .= $this->field();
-			$buf .= $this->instructions();
+            $buf .= $this->errors();
 			$buf .= "</div>\n";
 		}
 		return $buf;

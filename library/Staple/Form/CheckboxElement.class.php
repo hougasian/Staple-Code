@@ -88,7 +88,7 @@ class CheckboxElement extends FieldElement
 		{
 			$checked = ' checked';
 		}
-		return '	<input type="checkbox" id="'.$this->escape($this->id).'" name="'.$this->escape($this->name).'" value="'.$this->escape($this->value).'"'.$checked.$this->getAttribString('input').'>';
+		return '	<span class="field_input"><input type="checkbox" id="'.$this->escape($this->id).'" name="'.$this->escape($this->name).'" value="'.$this->escape($this->value).'"'.$checked.$this->getAttribString('input').'></span>';
 	}
 
 	/* (non-PHPdoc)
@@ -96,8 +96,25 @@ class CheckboxElement extends FieldElement
 	 */
 	public function label()
 	{
-		return '	<label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label.'</label>';
+		return '	<span class="field_label"><label for="'.$this->escape($this->id).'"'.$this->getClassString('label').'>'.$this->label.'</label></span>';
 	}
+
+    public function errors()
+    {
+        if(count($this->getErrors()) > 0)
+        {
+            $buf = "<div class=\"field_errors\">\n<ul>";
+            foreach($this->getErrors() as $errors)
+            {
+                foreach($errors as $error)
+                {
+                    $buf .= "<li>$error</li>";
+                }
+            }
+            $buf .= "</ul>\n</div>";
+            return $buf;
+        }
+    }
 
 	public function build($fieldView = NULL)
 	{
@@ -116,8 +133,10 @@ class CheckboxElement extends FieldElement
 			$this->addClass('element_checkbox');
 			$classes = $this->getClassString('div');
 			$buf .= "<div$classes id=\"".$this->escape($this->id)."_element\">\n";
+            $buf .= "<div class=\"field_instructions\">".$this->getInstructions()."</div>";
 			$buf .= $this->field();
 			$buf .= $this->label();
+            $buf .= $this->errors();
 			$buf .= '</div>';
 		}
 		return $buf;
