@@ -26,10 +26,10 @@ namespace Staple;
 use \Exception;
 use \PDO;
 use Staple\Query\Connection;
+use Staple\Query\IConnection;
 use Staple\Query\Insert;
+use Staple\Query\IStatement;
 use Staple\Query\Query;
-use Staple\Query\Select;
-use Staple\Query\Statement;
 use Staple\Traits\Factory;
 use \ReflectionClass;
 use \ReflectionProperty;
@@ -55,7 +55,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 	protected $_data = array();
 	/**
 	 * A database connection object that the model uses
-	 * @var PDO
+	 * @var IConnection
 	 */
 	protected $_connection;
 	/**
@@ -322,7 +322,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 	}
 
 	/**
-	 * @return PDO $_connection
+	 * @return IConnection $_connection
 	 */
 	public function getConnection()
 	{
@@ -337,10 +337,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 	}
 
 	/**
-	 * @param PDO $connection
+	 * @param IConnection $connection
 	 * @return $this
 	 */
-	public function setConnection(PDO $connection)
+	public function setConnection(IConnection $connection)
 	{
 		$this->_connection = $connection;
 		return $this;
@@ -376,23 +376,23 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 	/**
 	 * Return an instance of the model from the primary key.
 	 * @param int $id
-	 * @param PDO $connection
-	 * @return $this | bool
+	 * @param IConnection $connection
+	 * @return $this | $this[] | bool
 	 */
-	public static function find($id,PDO $connection = NULL)
+	public static function find($id, IConnection $connection = NULL)
 	{
 		//Make a model instance
 		$model = static::make();
 
 		//Create the query
-		$query = Select::table($model->_getTable())->whereEqual($model->_primaryKey,$id);
+		$query = Query::select($model->_getTable(),NULL,$connection)->whereEqual($model->_primaryKey,$id);
 
 		//Change connection if needed
 		if(isset($connection)) $query->setConnection($connection);
 
 		//Execute the query
 		$result = $query->execute();
-		if($result instanceof Statement)
+		if($result instanceof IStatement)
 		{
 			if($result->rowCount() == 1)
 			{
@@ -419,9 +419,38 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 			return false;		//Return false on query failure
 	}
 
-	public static function findAll()
+	public static function findAll(IConnection $connection = NULL)
 	{
-		//@todo incomplete function
+		//Make a model instance
+		$model = static::make();
+
+		//Create the query
+		$query = Query::select($model->_getTable(),NULL,$connection);
+
+		//Change connection if needed
+		if(isset($connection)) $query->setConnection($connection);
+
+		//Execute the query
+		$result = $query->execute();
+		if($result instanceof IStatement)
+		{
+			if($result->rowCount() >= 1)
+			{
+				//If more than one record was returned return the array of results.
+				$models = array();
+				while($row = $result->fetch(PDO::FETCH_ASSOC))
+				{
+					$model = static::make();
+					$model->_data = $row;
+					$models[] = $model;
+				}
+				return $models;
+			}
+			else
+				return false;
+		}
+		else
+			return false;		//Return false on query failure
 	}
 	
 	public static function findWhereEqual($column, $value)
