@@ -385,7 +385,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 		$model = static::make();
 
 		//Create the query
-		$query = Query::select($model->_getTable(),NULL,$connection)->whereEqual($model->_primaryKey,$id);
+		$query = Query::select($model->_getTable())->whereEqual($model->_primaryKey,$id);
 
 		//Change connection if needed
 		if(isset($connection)) $query->setConnection($connection);
@@ -419,13 +419,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 			return false;		//Return false on query failure
 	}
 
+	/**
+	 * Retrieve all models as an array.
+	 * @param IConnection|null $connection
+	 * @return array|bool
+	 * @throws \Staple\Exception\QueryException
+	 */
 	public static function findAll(IConnection $connection = NULL)
 	{
 		//Make a model instance
 		$model = static::make();
 
 		//Create the query
-		$query = Query::select($model->_getTable(),NULL,$connection);
+		$query = Query::select($model->_getTable());
 
 		//Change connection if needed
 		if(isset($connection)) $query->setConnection($connection);
@@ -452,24 +458,145 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 		else
 			return false;		//Return false on query failure
 	}
-	
+
+	/**
+	 * @param $column
+	 * @param $value
+	 * @return array|bool
+	 * @throws \Staple\Exception\QueryException
+	 */
 	public static function findWhereEqual($column, $value)
 	{
-		//@todo incomplete function
+		//Make a model instance
+		$model = static::make();
+
+		//Create the query
+		$query = Query::select($model->_getTable())->whereEqual($column,$value);
+
+		//Change connection if needed
+		if(isset($connection)) $query->setConnection($connection);
+
+		//Execute the query
+		$result = $query->execute();
+		if($result instanceof IStatement)
+		{
+			//If more than one record was returned return the array of results.
+			$models = array();
+			while($row = $result->fetch(PDO::FETCH_ASSOC))
+			{
+				$model = static::make();
+				$model->_data = $row;
+				$models[] = $model;
+			}
+			return $models;
+		}
+		else
+			return false;		//Return false on query failure
 	}
-	
+
+	/**
+	 * Find all the models where a specified column has a null value.
+	 * @param $column
+	 * @return array|bool
+	 * @throws \Staple\Exception\QueryException
+	 */
 	public static function findWhereNull($column)
 	{
-		//@todo incomplete function
+		//Make a model instance
+		$model = static::make();
+
+		//Create the query
+		$query = Query::select($model->_getTable())->whereNull($column);
+
+		//Change connection if needed
+		if(isset($connection)) $query->setConnection($connection);
+
+		//Execute the query
+		$result = $query->execute();
+		if($result instanceof IStatement)
+		{
+			//If more than one record was returned return the array of results.
+			$models = array();
+			while($row = $result->fetch(PDO::FETCH_ASSOC))
+			{
+				$model = static::make();
+				$model->_data = $row;
+				$models[] = $model;
+			}
+			return $models;
+		}
+		else
+			return false;		//Return false on query failure
 	}
-	
+
+	/**
+	 * Find all the models where a column value is in the supplied array
+	 * @param $column
+	 * @param array $values
+	 * @return array|bool
+	 * @throws \Staple\Exception\QueryException
+	 */
 	public static function findWhereIn($column, array $values)
 	{
-		//@todo incomplete function
+		//Make a model instance
+		$model = static::make();
+
+		//Create the query
+		$query = Query::select($model->_getTable())->whereIn($column,$values);
+
+		//Change connection if needed
+		if(isset($connection)) $query->setConnection($connection);
+
+		//Execute the query
+		$result = $query->execute();
+		if($result instanceof IStatement)
+		{
+			//If more than one record was returned return the array of results.
+			$models = array();
+			while($row = $result->fetch(PDO::FETCH_ASSOC))
+			{
+				$model = static::make();
+				$model->_data = $row;
+				$models[] = $model;
+			}
+			return $models;
+		}
+		else
+			return false;		//Return false on query failure
 	}
-	
+
+	/**
+	 * Find all the models that match the supplied where statement string.
+	 * @param $statement
+	 * @return array|bool
+	 * @throws \Staple\Exception\QueryException
+	 */
 	public static function findWhereStatement($statement)
 	{
-		//@todo incomplete function
+		//Make a model instance
+		$model = static::make();
+
+		//Create the query
+		$query = Query::select($model->_getTable())->whereStatement($statement);
+
+		//Change connection if needed
+		if(isset($connection)) $query->setConnection($connection);
+
+		//Execute the query
+		$result = $query->execute();
+		if($result instanceof IStatement)
+		{
+			//If more than one record was returned return the array of results.
+			$models = array();
+			while($row = $result->fetch(PDO::FETCH_ASSOC))
+			{
+				$model = static::make();
+				$model->_data = $row;
+				$models[] = $model;
+			}
+			return $models;
+		}
+		else
+			return false;		//Return false on query failure
 	}
 }
